@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,9 +23,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.practice.ui.theme.PracticeTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,22 +48,40 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(modifier: Modifier = Modifier) {
     var text by remember { mutableStateOf("") }
     val viewmodel: GameCoversViewModel = viewModel()
-    val state by viewmodel.uiState.collectAsState()
+    val state = viewmodel.uiState.collectAsState().value
 
-    Column(modifier = modifier) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("Enter Game Name") },
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
+    LaunchedEffect(text) {
+        delay(3000)
+        viewmodel.getImageUrl(text)
+    }
 
-        AsyncImage(
-            model = "",
-            contentDescription = null
-        )
+    when(state) {
+        is UiState.Error -> {
+            val errorText = state.errorText ?: stringResource(R.string.unknown_error_text)
+            Text(
+                text = errorText,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
+        UiState.Loading -> CircularProgressIndicator()
+        is UiState.Success -> {
+            Column(modifier = modifier) {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text("Enter Game Name") },
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+
+                AsyncImage(
+                    model = state.url,
+                    contentDescription = null
+                )
+            }
+        }
     }
 }
 
