@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,9 +7,21 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val secretsPropsFile = rootProject.file("secrets.properties")
+val secretsProps = Properties()
+if (secretsPropsFile.exists()) {
+    secretsProps.load(secretsPropsFile.inputStream())
+} else {
+    println("WARNING: secrets.properties not found!")
+}
+
 android {
     namespace = "com.example.practice"
     compileSdk = 35
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.example.practice"
@@ -15,6 +29,9 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "IGDB_CLIENT_ID", "\"${secretsProps["client_id"] ?: "undefined"}\"")
+        buildConfigField("String", "IGDB_ACCESS_TOKEN", "\"${secretsProps["access_token"] ?: "undefined"}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -41,7 +58,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

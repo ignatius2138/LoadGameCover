@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -24,12 +25,15 @@ import com.example.practice.ui.theme.PracticeTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.practice.data.GameCoverRepository
+import com.example.practice.data.ktorClient
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -49,7 +53,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     var text by remember { mutableStateOf("") }
-    val repository = remember { GameCoverRepository() }
+    val repository = remember { GameCoverRepository(ktorClient) }
 
     val factory = remember { GameCoversViewModelFactory(repository) }
     val viewModel: GameCoversViewModel = viewModel(factory = factory)
@@ -87,11 +91,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
         if (state is UiState.Success) {
             AsyncImage(
-                model = state.url,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(state.url)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
+                    .height(300.dp)
+                    .padding(top = 16.dp),
+                contentScale = ContentScale.Crop
             )
         }
     }

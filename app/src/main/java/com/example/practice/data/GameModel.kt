@@ -12,6 +12,6 @@ data class Game(
 
 @Serializable
 data class Cover(
-    val id: Int,
-    @SerialName("url") val imageUrl: String
+    val id: Int? = null,
+    @SerialName("url") val imageUrl: String? = null
 )

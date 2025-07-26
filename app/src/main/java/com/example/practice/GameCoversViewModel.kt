@@ -31,7 +31,7 @@ class GameCoversViewModel(val repository: IGameCoverRepository): ViewModel() {
             try {
                 _uiState.value = UiState.Loading
                 val url = repository.getImageUrl(gameName)
-                _uiState.value = UiState.Success(url)
+                _uiState.value = UiState.Success(url ?: "")
             } catch (e: Exception) {
                 _uiState.value = UiState.Error(e.message)
             }
