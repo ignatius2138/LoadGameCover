@@ -18,7 +18,7 @@ class GameCoverRepository(
 
             games.firstOrNull()?.cover?.imageUrl?.let { url ->
                 val adjustedUrl = url.replace("t_thumb", "t_screenshot_huge")
-                if (adjustedUrl.startsWith("//")) "https:$url" else url
+                if (adjustedUrl.startsWith("//")) "https:$adjustedUrl" else adjustedUrl
             }
         } catch (e: Exception) {
             e.printStackTrace()
